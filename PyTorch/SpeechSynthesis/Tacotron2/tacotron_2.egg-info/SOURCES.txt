@@ -15,7 +15,6 @@ tacotron2/text/symbols.py
 tacotron2/text/unidecoder/__init__.py
 tacotron2/text/unidecoder/homoglyphs.py
 tacotron2/text/unidecoder/replacements.py
-tacotron2_common/__init__.py
 tacotron2_common/audio_processing.py
 tacotron2_common/layers.py
 tacotron2_common/stft.py

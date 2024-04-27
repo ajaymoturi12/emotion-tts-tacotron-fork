@@ -1,3 +1,2 @@
 tacotron2
-tacotron2_common
 waveglow
