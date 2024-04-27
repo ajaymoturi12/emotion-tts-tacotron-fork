@@ -597,7 +597,7 @@ class Decoder(nn.Module):
 
 class Tacotron2(nn.Module):
     def __init__(self, mask_padding, n_mel_channels,
-                 n_symbols, symbols_embedding_dim, encoder_kernel_size,
+                 n_symbols, symbols_embedding_dim, n_emotions, encoder_kernel_size,
                  encoder_n_convolutions, encoder_embedding_dim,
                  attention_rnn_dim, attention_dim, attention_location_n_filters,
                  attention_location_kernel_size, n_frames_per_step,
@@ -610,6 +610,7 @@ class Tacotron2(nn.Module):
         self.n_mel_channels = n_mel_channels
         self.n_frames_per_step = n_frames_per_step
         self.embedding = nn.Embedding(n_symbols, symbols_embedding_dim)
+        self.emotion_embedding = nn.Embedding(n_emotions, symbols_embedding_dim)
         std = sqrt(2.0 / (n_symbols + symbols_embedding_dim))
         val = sqrt(3.0) * std  # uniform bounds for std
         self.embedding.weight.data.uniform_(-val, val)
@@ -657,10 +658,11 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs):
-        inputs, input_lengths, targets, max_len, output_lengths = inputs
+        inputs, input_lengths, targets, max_len, emotion, output_lengths = inputs
         input_lengths, output_lengths = input_lengths.data, output_lengths.data
 
-        embedded_inputs = self.embedding(inputs).transpose(1, 2)
+        emotion = emotion.unsqueeze(dim=1)
+        embedded_inputs = (self.embedding(inputs) + self.emotion_embedding(emotion)).transpose(1, 2)
 
         encoder_outputs = self.encoder(embedded_inputs, input_lengths)
 

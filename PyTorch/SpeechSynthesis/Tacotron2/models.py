@@ -125,7 +125,9 @@ def get_model_config(model_name, args):
             postnet_embedding_dim=args.postnet_embedding_dim,
             postnet_kernel_size=args.postnet_kernel_size,
             postnet_n_convolutions=args.postnet_n_convolutions,
-            decoder_no_early_stopping=args.decoder_no_early_stopping
+            decoder_no_early_stopping=args.decoder_no_early_stopping,
+            # emotion
+            n_emotions = args.n_emotions
         )
         return model_config
     elif model_name == 'WaveGlow':

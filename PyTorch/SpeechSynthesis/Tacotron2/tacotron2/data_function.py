@@ -51,11 +51,11 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
-        audiopath, text = audiopath_and_text[0], audiopath_and_text[1]
+        audiopath, text, emotion = audiopath_and_text[0], audiopath_and_text[1], audiopath_and_text[2]
         len_text = len(text)
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
-        return (text, mel, len_text)
+        return (text, mel, emotion, len_text)
 
     def get_mel(self, filename):
         if not self.load_mel_from_disk:
@@ -97,8 +97,12 @@ class TextMelCollate():
         """Collate's training batch from normalized text and mel-spectrogram
         PARAMS
         ------
-        batch: [text_normalized, mel_normalized]
+        batch: [(text_normalized, mel_normalized, emotion)]
         """
+        # print(zip(*batch))
+        _, _, emotion, _ = zip(*batch)
+        emotion = torch.tensor(emotion)
+        
         # Right zero-pad all one-hot text sequences to max input length
         input_lengths, ids_sorted_decreasing = torch.sort(
             torch.LongTensor([len(x[0]) for x in batch]),
@@ -128,24 +132,25 @@ class TextMelCollate():
             mel = batch[ids_sorted_decreasing[i]][1]
             mel_padded[i, :, :mel.size(1)] = mel
             gate_padded[i, mel.size(1)-1:] = 1
-            output_lengths[i] = mel.size(1)
+            output_lengths[i] = mel.size(1) # number of timesteps
 
         # count number of items - characters in text
         len_x = [x[2] for x in batch]
         len_x = torch.Tensor(len_x)
         return text_padded, input_lengths, mel_padded, gate_padded, \
-            output_lengths, len_x
+            output_lengths, emotion, len_x
 
 def batch_to_gpu(batch):
     text_padded, input_lengths, mel_padded, gate_padded, \
-        output_lengths, len_x = batch
+        output_lengths, emotion, len_x = batch
+    emotion = to_gpu(emotion).long()
     text_padded = to_gpu(text_padded).long()
     input_lengths = to_gpu(input_lengths).long()
     max_len = torch.max(input_lengths.data).item()
     mel_padded = to_gpu(mel_padded).float()
     gate_padded = to_gpu(gate_padded).float()
     output_lengths = to_gpu(output_lengths).long()
-    x = (text_padded, input_lengths, mel_padded, max_len, output_lengths)
+    x = (text_padded, input_lengths, mel_padded, max_len, emotion, output_lengths)
     y = (mel_padded, gate_padded)
     len_x = torch.sum(output_lengths)
     return (x, y, len_x)

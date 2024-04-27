@@ -154,6 +154,10 @@ def parse_args(parser):
     benchmark = parser.add_argument_group('benchmark')
     benchmark.add_argument('--bench-class', type=str, default='')
 
+    # emotion parameters
+    emotion = parser.add_argument_group('emotion')
+    emotion.add_argument('--n-emotions', default=5, type=int, required=True)
+
     return parser
 
 
