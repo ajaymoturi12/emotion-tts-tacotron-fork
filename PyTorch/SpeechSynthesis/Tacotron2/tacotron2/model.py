@@ -663,7 +663,7 @@ class Tacotron2(nn.Module):
 
         emotion = emotion.unsqueeze(dim=1)
         embedded_inputs = (self.embedding(inputs) + self.emotion_embedding(emotion)).transpose(1, 2)
-
+        #B, W, H       B, 1, H
         encoder_outputs = self.encoder(embedded_inputs, input_lengths)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
@@ -677,9 +677,9 @@ class Tacotron2(nn.Module):
             output_lengths)
 
 
-    def infer(self, inputs, input_lengths):
-
-        embedded_inputs = self.embedding(inputs).transpose(1, 2)
+    def infer(self, inputs, emotion, input_lengths):
+        emotion = emotion.unsqueeze(dim=1)
+        embedded_inputs = (self.embedding(inputs) + self.emotion_embedding(emotion)).transpose(1, 2)
         encoder_outputs = self.encoder.infer(embedded_inputs, input_lengths)
         mel_outputs, gate_outputs, alignments, mel_lengths = self.decoder.infer(
             encoder_outputs, input_lengths)
