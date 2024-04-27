@@ -1,6 +1,6 @@
 # NVIDIA Deep Learning Examples for Tensor Cores
 
-## Introduction
+## Introduct
 This repository provides State-of-the-Art Deep Learning examples that are easy to train and deploy, achieving the best reproducible accuracy and performance with NVIDIA CUDA-X software stack running on NVIDIA Volta, Turing and Ampere GPUs.
 
 ## NVIDIA GPU Cloud (NGC) Container Registry
